@@ -1,6 +1,7 @@
 import { supabase } from './supabaseClient';
 
-const API_URL = import.meta.env.VITE_API_URL;
+// Trim any trailing slash so "https://x.com/" + "/api/..." never becomes "//api/..."
+const API_URL = (import.meta.env.VITE_API_URL || '').replace(/\/+$/, '');
 
 // Wraps fetch() and automatically attaches the current user's
 // Supabase session token as a Bearer token.

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { CheckCircle2 } from 'lucide-react';
 import { apiRequest } from '../lib/api';
 
 export default function Register() {
@@ -28,16 +29,43 @@ export default function Register() {
   }
 
   return (
-    <div className="auth-container">
-      <h2>Guest Registration</h2>
-      <form onSubmit={handleSubmit}>
-        <input placeholder="Full Name" value={fullName} onChange={(e) => setFullName(e.target.value)} required />
-        <input placeholder="Mobile Number (e.g. +919876543210)" value={mobile} onChange={(e) => setMobile(e.target.value)} required />
-        <input placeholder="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} />
-        {error && <p className="error">{error}</p>}
-        <button type="submit" disabled={loading}>{loading ? 'Registering...' : 'Register'}</button>
-      </form>
-      <p>Already have an account? <Link to="/login">Login</Link></p>
+    <div className="auth-shell">
+      <div className="auth-hero">
+        <div className="auth-logo-box">🏨</div>
+        <h1 className="brand-title">BookMyRoom</h1>
+        <p className="auth-tagline">Smart room booking &amp; stay management</p>
+        <ul className="auth-features">
+          <li><CheckCircle2 size={18} /> Instant room booking</li>
+          <li><CheckCircle2 size={18} /> Live occupancy &amp; check-in tracking</li>
+          <li><CheckCircle2 size={18} /> Guest self-registration</li>
+          <li><CheckCircle2 size={18} /> Admin dashboard &amp; reports</li>
+        </ul>
+      </div>
+
+      <div className="auth-panel">
+        <div className="auth-container">
+          <h2>Guest Registration</h2>
+          <p className="auth-subtitle">Create an account to start booking rooms.</p>
+
+          <form onSubmit={handleSubmit}>
+            <div>
+              <label className="field-label">Full Name</label>
+              <input placeholder="Your name" value={fullName} onChange={(e) => setFullName(e.target.value)} required />
+            </div>
+            <div>
+              <label className="field-label">Mobile Number</label>
+              <input placeholder="+919876543210" value={mobile} onChange={(e) => setMobile(e.target.value)} required />
+            </div>
+            <div>
+              <label className="field-label">Password</label>
+              <input placeholder="At least 6 characters" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} />
+            </div>
+            {error && <p className="error">{error}</p>}
+            <button type="submit" disabled={loading}>{loading ? 'Registering...' : 'Register'}</button>
+          </form>
+          <p>Already have an account? <Link to="/login">Login</Link></p>
+        </div>
+      </div>
     </div>
   );
 }
