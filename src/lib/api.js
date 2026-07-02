@@ -1,13 +1,10 @@
-import { supabase } from './supabaseClient';
-
-// Trim any trailing slash so "https://x.com/" + "/api/..." never becomes "//api/..."
 const API_URL = (import.meta.env.VITE_API_URL || '').replace(/\/+$/, '');
+const TOKEN_KEY = 'bookmyroom_token';
 
-// Wraps fetch() and automatically attaches the current user's
-// Supabase session token as a Bearer token.
+// Wraps fetch() and automatically attaches our own JWT (issued by
+// /api/auth/login) as a Bearer token, if one is stored.
 export async function apiRequest(path, options = {}) {
-  const { data: { session } } = await supabase.auth.getSession();
-  const token = session?.access_token;
+  const token = localStorage.getItem(TOKEN_KEY);
 
   const res = await fetch(`${API_URL}${path}`, {
     ...options,

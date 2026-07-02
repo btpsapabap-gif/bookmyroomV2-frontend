@@ -1,5 +1,5 @@
 import { LayoutDashboard, BookOpen, Users, BedDouble, BarChart3, LogOut } from 'lucide-react';
-import { supabase } from '../lib/supabaseClient';
+import { logout } from '../lib/auth';
 
 const NAV_ITEMS = [
   { key: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -31,7 +31,7 @@ export default function Sidebar({ active, onNavigate }) {
         ))}
       </nav>
 
-      <button className="sidebar-link sidebar-logout" onClick={() => supabase.auth.signOut()}>
+      <button className="sidebar-link sidebar-logout" onClick={logout}>
         <LogOut size={18} />
         Logout
       </button>

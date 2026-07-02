@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { CheckCircle2 } from 'lucide-react';
-import { apiRequest } from '../lib/api';
+import { register } from '../lib/auth';
 
 export default function Register() {
   const [fullName, setFullName] = useState('');
@@ -16,10 +16,7 @@ export default function Register() {
     setError('');
     setLoading(true);
     try {
-      await apiRequest('/api/auth/register', {
-        method: 'POST',
-        body: JSON.stringify({ full_name: fullName, mobile_number: mobile, password })
-      });
+      await register(fullName, mobile, password);
       navigate('/login', { state: { registered: true } });
     } catch (err) {
       setError(err.message);

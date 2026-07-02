@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Building2, CheckSquare, BookOpen, Users, Wallet, ArrowDownToLine, ArrowUpFromLine, DoorClosed } from 'lucide-react';
 import { apiRequest } from '../lib/api';
-import { supabase } from '../lib/supabaseClient';
+import { getToken } from '../lib/auth';
 import Sidebar from '../components/Sidebar';
 import { useAuth } from '../lib/AuthContext';
 
@@ -64,10 +64,10 @@ export default function AdminDashboard() {
   }
 
   async function downloadReport(format) {
-    const { data: { session } } = await supabase.auth.getSession();
+    const token = getToken();
     const params = new URLSearchParams(reportFilters);
     const res = await fetch(`${API_URL}/api/reports/${format}?${params}`, {
-      headers: { Authorization: `Bearer ${session.access_token}` }
+      headers: { Authorization: `Bearer ${token}` }
     });
     const blob = await res.blob();
     const url = window.URL.createObjectURL(blob);

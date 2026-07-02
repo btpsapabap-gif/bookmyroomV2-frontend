@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { CheckCircle2 } from 'lucide-react';
-import { supabase } from '../lib/supabaseClient';
+import { login } from '../lib/auth';
 
 export default function Login() {
   const [mobile, setMobile] = useState('');
@@ -14,31 +14,14 @@ export default function Login() {
     e.preventDefault();
     setError('');
     setLoading(true);
-
-    // Mobile number -> synthetic email, matching the scheme used at registration.
-    // This lets us use plain email/password auth under the hood while the
-    // person only ever sees "mobile number" as their login.
-    const digitsOnly = mobile.replace(/[^\d]/g, '');
-    const syntheticEmail = `${digitsOnly}@bookmyroom.local`;
-
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email: syntheticEmail,
-      password
-    });
-
-    setLoading(false);
-    if (error) {
-      setError('Incorrect mobile number or password.');
-      return;
+    try {
+      const profile = await login(mobile, password);
+      navigate(profile.role === 'admin' ? '/admin' : '/dashboard');
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
-
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', data.user.id)
-      .single();
-
-    navigate(profile?.role === 'admin' ? '/admin' : '/dashboard');
   }
 
   return (

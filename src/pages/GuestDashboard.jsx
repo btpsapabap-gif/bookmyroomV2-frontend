@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { apiRequest } from '../lib/api';
 import { useAuth } from '../lib/AuthContext';
-import { supabase } from '../lib/supabaseClient';
+import { logout } from '../lib/auth';
 
 const STATUS_LABELS = { checked_in: 'checked in', checked_out: 'checked out' };
 
@@ -52,7 +52,7 @@ export default function GuestDashboard() {
           <span style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: 18 }}>BookMyRoom</span>
         </div>
         <button
-          onClick={() => supabase.auth.signOut()}
+          onClick={logout}
           style={{ background: 'rgba(255,255,255,0.12)', color: 'white', border: 'none', padding: '9px 16px', borderRadius: 8, cursor: 'pointer', fontWeight: 600 }}
         >
           Logout
