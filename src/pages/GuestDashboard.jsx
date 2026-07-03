@@ -15,6 +15,7 @@ export default function GuestDashboard() {
   const [bookings, setBookings] = useState([]);
   const [form, setForm] = useState({ room_id: '', from_date: '', to_date: '' });
   const [message, setMessage] = useState('');
+  const todayISO = new Date().toISOString().slice(0, 10);
 
   async function loadData() {
     const [roomsData, bookingsData] = await Promise.all([
@@ -76,8 +77,8 @@ export default function GuestDashboard() {
                 </option>
               ))}
             </select>
-            <label>From: <input type="date" value={form.from_date} onChange={(e) => setForm({ ...form, from_date: e.target.value })} required /></label>
-            <label>To: <input type="date" value={form.to_date} onChange={(e) => setForm({ ...form, to_date: e.target.value })} required /></label>
+            <label>From: <input type="date" min={todayISO} value={form.from_date} onChange={(e) => setForm({ ...form, from_date: e.target.value })} required /></label>
+            <label>To: <input type="date" min={form.from_date || todayISO} value={form.to_date} onChange={(e) => setForm({ ...form, to_date: e.target.value })} required /></label>
             <button type="submit">Book Now</button>
           </form>
           {message && <p style={{ marginTop: 12, fontSize: 14, color: 'var(--teal-700)' }}>{message}</p>}
