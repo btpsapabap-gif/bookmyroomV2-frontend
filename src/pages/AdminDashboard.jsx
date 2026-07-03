@@ -18,16 +18,24 @@ export default function AdminDashboard() {
   const [tab, setTab] = useState('dashboard');
   const [rooms, setRooms] = useState([]);
   const [bookings, setBookings] = useState([]);
+  const [guests, setGuests] = useState([]);
   const [newRoom, setNewRoom] = useState({ room_number: '', room_type: 'standard', price_per_night: '' });
   const [reportFilters, setReportFilters] = useState({ from: '', to: '', status: '' });
+  const [bookingForm, setBookingForm] = useState({ guest_id: '', room_id: '', from_date: '', to_date: '' });
+  const [bookingMessage, setBookingMessage] = useState('');
+  const [showNewGuest, setShowNewGuest] = useState(false);
+  const [newGuest, setNewGuest] = useState({ full_name: '', mobile_number: '', password: '' });
+  const [newGuestMessage, setNewGuestMessage] = useState('');
 
   async function loadData() {
-    const [roomsData, bookingsData] = await Promise.all([
+    const [roomsData, bookingsData, guestsData] = await Promise.all([
       apiRequest('/api/rooms'),
-      apiRequest('/api/bookings')
+      apiRequest('/api/bookings'),
+      apiRequest('/api/guests')
     ]);
     setRooms(roomsData);
     setBookings(bookingsData);
+    setGuests(guestsData);
   }
 
   useEffect(() => { loadData(); }, []);
@@ -51,6 +59,38 @@ export default function AdminDashboard() {
     await apiRequest('/api/rooms', { method: 'POST', body: JSON.stringify(newRoom) });
     setNewRoom({ room_number: '', room_type: 'standard', price_per_night: '' });
     loadData();
+  }
+
+  async function createBookingForGuest(e) {
+    e.preventDefault();
+    setBookingMessage('');
+    try {
+      await apiRequest('/api/bookings', { method: 'POST', body: JSON.stringify(bookingForm) });
+      setBookingMessage('Booking created successfully!');
+      setBookingForm({ guest_id: '', room_id: '', from_date: '', to_date: '' });
+      loadData();
+    } catch (err) {
+      setBookingMessage(err.message);
+    }
+  }
+
+  async function createGuestQuick(e) {
+    e.preventDefault();
+    setNewGuestMessage('');
+    try {
+      const { profile: created } = await apiRequest('/api/auth/register', {
+        method: 'POST',
+        body: JSON.stringify(newGuest)
+      });
+      setNewGuestMessage('Guest added.');
+      setNewGuest({ full_name: '', mobile_number: '', password: '' });
+      await loadData();
+      // Auto-select the newly created guest in the booking form
+      setBookingForm((f) => ({ ...f, guest_id: created.id }));
+      setShowNewGuest(false);
+    } catch (err) {
+      setNewGuestMessage(err.message);
+    }
   }
 
   async function checkIn(id) {
@@ -145,6 +185,43 @@ export default function AdminDashboard() {
                 ))}
               </tbody>
             </table>
+          </div>
+        )}
+
+        {(tab === 'dashboard' || tab === 'bookings' || tab === 'guests') && (
+          <div className="card">
+            <h3>Create Booking for a Guest</h3>
+            <form onSubmit={createBookingForGuest} className="booking-form">
+              <select value={bookingForm.guest_id} onChange={(e) => setBookingForm({ ...bookingForm, guest_id: e.target.value })} required>
+                <option value="">Select guest</option>
+                {guests.map((g) => (
+                  <option key={g.id} value={g.id}>{g.full_name} — {g.mobile_number}</option>
+                ))}
+              </select>
+              <select value={bookingForm.room_id} onChange={(e) => setBookingForm({ ...bookingForm, room_id: e.target.value })} required>
+                <option value="">Select room</option>
+                {rooms.filter((r) => r.status === 'available').map((r) => (
+                  <option key={r.id} value={r.id}>Room {r.room_number} — {r.room_type} (₹{r.price_per_night}/night)</option>
+                ))}
+              </select>
+              <label>From: <input type="date" value={bookingForm.from_date} onChange={(e) => setBookingForm({ ...bookingForm, from_date: e.target.value })} required /></label>
+              <label>To: <input type="date" value={bookingForm.to_date} onChange={(e) => setBookingForm({ ...bookingForm, to_date: e.target.value })} required /></label>
+              <button type="submit">Create Booking</button>
+              <button type="button" onClick={() => setShowNewGuest((s) => !s)} style={{ background: 'transparent', color: 'var(--teal-700)', border: '1.5px solid var(--teal-700)' }}>
+                {showNewGuest ? 'Cancel' : '+ New Guest'}
+              </button>
+            </form>
+            {bookingMessage && <p style={{ marginTop: 12, fontSize: 14, color: 'var(--teal-700)' }}>{bookingMessage}</p>}
+
+            {showNewGuest && (
+              <form onSubmit={createGuestQuick} className="booking-form" style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid var(--border-soft)' }}>
+                <input placeholder="Full Name" value={newGuest.full_name} onChange={(e) => setNewGuest({ ...newGuest, full_name: e.target.value })} required />
+                <input placeholder="Mobile Number" value={newGuest.mobile_number} onChange={(e) => setNewGuest({ ...newGuest, mobile_number: e.target.value })} required />
+                <input placeholder="Password (min 6 chars)" type="password" minLength={6} value={newGuest.password} onChange={(e) => setNewGuest({ ...newGuest, password: e.target.value })} required />
+                <button type="submit">Add Guest</button>
+              </form>
+            )}
+            {newGuestMessage && <p style={{ marginTop: 8, fontSize: 14, color: 'var(--teal-700)' }}>{newGuestMessage}</p>}
           </div>
         )}
 
