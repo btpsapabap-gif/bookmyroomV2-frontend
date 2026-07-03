@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { CheckCircle2 } from 'lucide-react';
 import { login } from '../lib/auth';
+import { useAuth } from '../lib/AuthContext';
 
 export default function Login() {
   const [mobile, setMobile] = useState('');
@@ -9,6 +10,7 @@ export default function Login() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { refreshProfile } = useAuth();
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -16,6 +18,7 @@ export default function Login() {
     setLoading(true);
     try {
       const profile = await login(mobile, password);
+      await refreshProfile(); // sync AuthContext so ProtectedRoute sees the session immediately
       navigate(profile.role === 'admin' ? '/admin' : '/dashboard');
     } catch (err) {
       setError(err.message);
