@@ -124,6 +124,21 @@ h1, h2, h3, .brand-title {
   color: var(--teal-800);
   box-shadow: 0 2px 6px rgba(13,61,56,0.1);
 }
+/* Higher specificity than ".card button" / ".booking-form button" so the
+   tab toggle's own look always wins, regardless of stylesheet order. */
+.card .role-tabs button, .booking-form.role-tabs button {
+  background: transparent;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+.card .role-tabs button:hover, .booking-form.role-tabs button:hover {
+  background: rgba(255,255,255,0.5);
+}
+.card .role-tabs button.active, .booking-form.role-tabs button.active {
+  background: var(--card-bg);
+  color: var(--teal-800);
+  box-shadow: 0 2px 6px rgba(13,61,56,0.1);
+}
 
 .auth-container form { display: flex; flex-direction: column; gap: 14px; }
 .field-label { font-size: 13px; font-weight: 600; color: var(--text-dark); margin-bottom: 6px; display: block; }
